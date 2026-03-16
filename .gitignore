@@ -1,0 +1,14 @@
+﻿/.vs
+/.vscode
+bin/
+obj/
+.svn/
+*.csproj.user
+*.sln.DotSettings.user
+*.pubxml.user
+.idea/
+/NG.sln.DotSettings
+appsettings.Development.json
+.DS_Store
+gitInfo.txt
+NuGet.config
