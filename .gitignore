@@ -12,3 +12,5 @@ appsettings.Development.json
 .DS_Store
 gitInfo.txt
 NuGet.config
+Migrations/Chinook_SqlServer_AutoIncrementPKs.sql
+Migrations/northwind_short.sql
