@@ -1,4 +1,5 @@
 ﻿using EntityFrameworkCoreSeminar.Database.Models;
+using EntityFrameworkCoreSeminar.Database.Models.Northwind;
 using Microsoft.EntityFrameworkCore;
 
 namespace EntityFrameworkCoreSeminar.Database;
