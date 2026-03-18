@@ -47,7 +47,7 @@ public partial class ChinookContext : DbContext
 
             entity.HasOne(d => d.Artist).WithMany(p => p.Albums)
                 .HasForeignKey(d => d.ArtistId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK_AlbumArtistId");
         });
 
@@ -202,6 +202,7 @@ public partial class ChinookContext : DbContext
 
             entity.HasOne(d => d.Album).WithMany(p => p.Tracks)
                 .HasForeignKey(d => d.AlbumId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK_TrackAlbumId");
 
             entity.HasOne(d => d.Genre).WithMany(p => p.Tracks)

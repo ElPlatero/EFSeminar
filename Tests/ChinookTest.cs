@@ -1,4 +1,5 @@
-﻿using EntityFrameworkCoreSeminar.Database;
+﻿using System.Text.Json;
+using EntityFrameworkCoreSeminar.Database;
 using EntityFrameworkCoreSeminar.Database.Models.Chinook;
 using Microsoft.EntityFrameworkCore;
 using Xunit.Abstractions;
@@ -52,7 +53,72 @@ public partial class ChinookTest(ITestOutputHelper helper)
         helper.WriteLine($"Künstler: {string.Join(", ", artists)}");
     }
 
-    
+    [Fact]
+    public async Task TestUpdateAcDc()
+    {
+        const string bandName = "AC/DC";
+        const string newName = "DC (Battery Powered)";
+        
+        await using var context = getContext();
 
+        var acdc = await context.Artists.FirstOrDefaultAsync(p => p.Name == bandName);
+        Assert.NotNull(acdc);
+                   
+        acdc.Name = newName;
+        await context.SaveChangesAsync();
+        
+        await using var context2 = getContext();
+        var dc = await context2.Artists.FirstOrDefaultAsync(p => p.Name == newName);
+        Assert.NotNull(dc);
+
+        dc.Name = bandName;
+        await context2.SaveChangesAsync();
+    }
+
+
+    [Theory]
+    [MemberData(nameof(AddArtistTestCases))]
+    public async Task TestAddArtist(string artistName, IEnumerable<Album> albums)
+    {
+        await using var context = getContext();
+
+        var artist = new Artist { Albums = albums.ToList(), Name = artistName };
+        await context.AddAsync(artist);
+        await context.SaveChangesAsync();
+
+        helper.WriteLine("Artist angelegt mit {0}.", JsonSerializer.Serialize(new { artist.ArtistId, Albums = artist.Albums.Select(p => new { p.AlbumId, TrackIds = p.Tracks.Select(q => q.TrackId) }) }));
+        
+        context.Remove(artist);
+        await context.SaveChangesAsync();
+    }
+
+    public static TheoryData<string, IEnumerable<Album>> AddArtistTestCases { get; } = new()
+    {
+        { 
+            "Ton Steine Scherben", 
+            new List<Album> 
+            { 
+                new()
+                { 
+                    Title = "Keine Macht für Niemand", 
+                    Tracks = new List<Track> 
+                    {
+                        new() { Name = "Wir müssen hier raus", GenreId = 1, MediaTypeId = 5 },
+                        new() { Name = "Feierabend", GenreId = 1, MediaTypeId = 5 },
+                        new() { Name = "Die letzte Schlacht gewinnen wir", GenreId = 1, MediaTypeId = 5 },
+                        new() { Name = "Paul Panzers Blues", GenreId = 1, MediaTypeId = 5 },
+                        new() { Name = "Menschenjäger", GenreId = 1, MediaTypeId = 5 },
+                        new() { Name = "Allein machen sie dich ein", GenreId = 1, MediaTypeId = 5 },
+                        new() { Name = "Schritt für Schritt ins Paradies", GenreId = 1, MediaTypeId = 5 },
+                        new() { Name = "Der Traum ist aus", GenreId = 1, MediaTypeId = 5 },
+                        new() { Name = "Mensch Meier", GenreId = 1, MediaTypeId = 5 },
+                        new() { Name = "Rauch-Haus-Song", GenreId = 1, MediaTypeId = 5 },
+                        new() { Name = "Keine Macht für Niemand", GenreId = 1, MediaTypeId = 5 },
+                        new() { Name = "Komm schlaf bei mir", GenreId = 1, MediaTypeId = 5 }
+                    } 
+                } 
+            } 
+        }
+    };
     private partial ChinookContext getContext();
 }
