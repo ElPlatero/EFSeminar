@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Api.Migrations
 {
     [DbContext(typeof(ChinookContext))]
-    [Migration("20260318132545_AddArchiveTables")]
-    partial class AddArchiveTables
+    [Migration("20260319081835_InitialChinookBaseline")]
+    partial class InitialChinookBaseline
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
