@@ -1,15 +1,17 @@
 ﻿using System.Globalization;
 using System.Xml.Linq;
 using Api.BusinessLayer;
+using EntityFrameworkCoreSeminar.Database.Models.Chinook;
 
 namespace Api.Services;
 
 public interface IEuroTradingArchiveDataService
 {
     Task<Archive> GetArchiveAsync(string uri);
+    Task SaveArchiveAsync(Archive archive);
 }
 
-public class EuroTradingArchiveDataService : IEuroTradingArchiveDataService
+public class EuroTradingArchiveDataService(ChinookContext dbContext) : IEuroTradingArchiveDataService
 {
     private static readonly XNamespace EcbNs = "http://www.ecb.int/vocabulary/2002-08-01/eurofxref";
     private static readonly CultureInfo CultureInfo = CultureInfo.InvariantCulture;
@@ -21,14 +23,16 @@ public class EuroTradingArchiveDataService : IEuroTradingArchiveDataService
         var xDocument = await XDocument.LoadAsync(stream, LoadOptions.None, CancellationToken.None);
         var tradingDays = xDocument.Descendants(EcbNs + "Cube")
             .Where(p => p.Attribute("time") != null)
-            .Select(p => new TradingDay(
-                DateOnly.Parse(p.Attribute("time")!.Value, CultureInfo), 
-                p.Elements(EcbNs + "Cube").Select(q => new ExchangeRate(
-                    q.Attribute("currency")!.Value, 
-                    1 / decimal.Parse(q.Attribute("rate")!.Value, 
-                    CultureInfo))
-                ).ToList())
-            ).ToList();
-        return new Archive(tradingDays);
+            .Select(p => new TradingDay {
+                Date = DateOnly.Parse(p.Attribute("time")!.Value, CultureInfo), 
+                ExchangeRates = p.Elements(EcbNs + "Cube").Select(q => new ExchangeRate(0, q.Attribute("currency")!.Value, 1 / decimal.Parse(q.Attribute("rate")!.Value, CultureInfo))).ToList()
+            }).ToList();
+        return new Archive { TradingDays = tradingDays };
+    }
+
+    public async Task SaveArchiveAsync(Archive archive)
+    {
+        await dbContext.AddAsync(archive);
+        await dbContext.SaveChangesAsync();
     }
 }

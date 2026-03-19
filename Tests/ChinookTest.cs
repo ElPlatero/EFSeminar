@@ -6,12 +6,12 @@ using Xunit.Abstractions;
 
 namespace Tests;
 
-public partial class ChinookTest(ITestOutputHelper helper)
+public class ChinookTest(ITestOutputHelper helper) : ChinookTestBase
 {
     [Fact]
     public async Task TestGetArtists()
     {
-        await using var context = getContext();
+        await using var context = getContext(helper);
         var result = await context.Artists.Select(p => new { p.Name, p.Albums }).OrderBy(p => p.Name).Skip(2).Take(10).ToListAsync();
 
         Assert.NotNull(result);
@@ -26,7 +26,7 @@ public partial class ChinookTest(ITestOutputHelper helper)
     [InlineData("Aerosmith")]
     public async Task TestGetAlbums(string artistName)
     {
-        await using var context = getContext();
+        await using var context = getContext(helper);
 
         var result = await context.Albums.Where(p => p.Artist.Name == artistName).Select(p => p.Title).ToListAsync();
         result.ForEach(p => helper.WriteLine($"Album: {p}"));
@@ -37,7 +37,7 @@ public partial class ChinookTest(ITestOutputHelper helper)
     [InlineData("Eric Clapton")]
     public async Task TestGetAlbumsWithTracks(string artistName)
     {
-        await using var context = getContext();
+        await using var context = getContext(helper);
 
         var result = await context.Albums.Where(p => p.Artist.Name == artistName).Select(p => new { p.Title, p.Tracks }).ToListAsync();
         result.ForEach(p => helper.WriteLine($"{p.Title} hat die Tracks {string.Join(", ", p.Tracks.Select(q => q.Name))}."));
@@ -47,7 +47,7 @@ public partial class ChinookTest(ITestOutputHelper helper)
     [InlineData("Blues")]
     public async Task GetArtistsOfGenre(string genreName)
     {
-        await using var context = getContext();
+        await using var context = getContext(helper);
         
         var artists = await context.Genres.Where(p => p.Name == genreName).SelectMany(p => p.Tracks.Where(q => q.Album != null).Select(q => q.Album!.Artist )).Select(p => p.Name).ToHashSetAsync();
         helper.WriteLine($"Künstler: {string.Join(", ", artists)}");
@@ -59,7 +59,7 @@ public partial class ChinookTest(ITestOutputHelper helper)
         const string bandName = "AC/DC";
         const string newName = "DC (Battery Powered)";
         
-        await using var context = getContext();
+        await using var context = getContext(helper);
 
         var acdc = await context.Artists.FirstOrDefaultAsync(p => p.Name == bandName);
         Assert.NotNull(acdc);
@@ -67,7 +67,7 @@ public partial class ChinookTest(ITestOutputHelper helper)
         acdc.Name = newName;
         await context.SaveChangesAsync();
         
-        await using var context2 = getContext();
+        await using var context2 = getContext(helper);
         var dc = await context2.Artists.FirstOrDefaultAsync(p => p.Name == newName);
         Assert.NotNull(dc);
 
@@ -80,7 +80,7 @@ public partial class ChinookTest(ITestOutputHelper helper)
     [MemberData(nameof(AddArtistTestCases))]
     public async Task TestAddArtist(string artistName, IEnumerable<Album> albums)
     {
-        await using var context = getContext();
+        await using var context = getContext(helper);
 
         var artist = new Artist { Albums = albums.ToList(), Name = artistName };
         await context.AddAsync(artist);
@@ -120,5 +120,4 @@ public partial class ChinookTest(ITestOutputHelper helper)
             } 
         }
     };
-    private partial ChinookContext getContext();
 }

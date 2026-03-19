@@ -14,4 +14,4 @@ gitInfo.txt
 NuGet.config
 Api/Migrations/Chinook_SqlServer_AutoIncrementPKs.sql
 Api/Migrations/northwind_short.sql
-Tests/ChinookTest.Database.cs
+Tests/ChinookTestBase.Database.cs

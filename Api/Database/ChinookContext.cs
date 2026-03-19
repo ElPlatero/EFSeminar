@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Api.BusinessLayer;
 using Microsoft.EntityFrameworkCore;
 
 namespace EntityFrameworkCoreSeminar.Database.Models.Chinook;
@@ -35,6 +36,8 @@ public partial class ChinookContext : DbContext
 
     public virtual DbSet<Track> Tracks { get; set; }
 
+    public virtual DbSet<Archive> Archives { get; set; }
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Album>(entity =>
@@ -214,7 +217,22 @@ public partial class ChinookContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_TrackMediaTypeId");
         });
+        modelBuilder.Entity<Archive>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasMany(d => d.TradingDays).WithOne().OnDelete(DeleteBehavior.Cascade);
+        });
 
+        modelBuilder.Entity<TradingDay>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasMany(d => d.ExchangeRates).WithOne().OnDelete(DeleteBehavior.Cascade);
+        });
+        modelBuilder.Entity<ExchangeRate>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Rate).HasColumnType("decimal(18, 4)");
+        });
         OnModelCreatingPartial(modelBuilder);
     }
 

@@ -1,3 +1,7 @@
 namespace Api.BusinessLayer;
 
-public record Archive(List<TradingDay> TradingDays);
+public record Archive
+{
+    public int Id { get; init; }
+    public List<TradingDay> TradingDays { get; init; } = [];
+}
