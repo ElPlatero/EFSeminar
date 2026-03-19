@@ -11,7 +11,7 @@ public partial class Artist
 
     public string? Management { get; set; }
 
-    public int? Age { get; set; }
+    public DateOnly? DateOfBirth { get; set; }
 
     public virtual ICollection<Album> Albums { get; set; } = new List<Album>();
 }
