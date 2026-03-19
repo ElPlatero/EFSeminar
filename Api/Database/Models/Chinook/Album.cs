@@ -11,6 +11,10 @@ public partial class Album
 
     public int ArtistId { get; set; }
 
+    public int? TotalMilliseconds { get; set; }
+
+    public decimal? TotalPrice { get; set; }
+
     public virtual Artist Artist { get; set; } = null!;
 
     public virtual ICollection<Track> Tracks { get; set; } = new List<Track>();
