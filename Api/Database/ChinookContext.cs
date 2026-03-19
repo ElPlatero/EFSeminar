@@ -60,6 +60,7 @@ public partial class ChinookContext : DbContext
             entity.ToTable("Artist");
 
             entity.Property(e => e.Name).HasMaxLength(120);
+            entity.Property(e => e.Management).HasMaxLength(120);
         });
 
         modelBuilder.Entity<Customer>(entity =>
