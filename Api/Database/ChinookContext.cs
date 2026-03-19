@@ -47,6 +47,11 @@ public partial class ChinookContext : DbContext
             entity.HasIndex(e => e.ArtistId, "IFK_AlbumArtistId");
 
             entity.Property(e => e.Title).HasMaxLength(160);
+            entity.Property(e => e.TotalPlaytime)
+                .HasConversion(
+                    value => value.HasValue ? (int?)value.Value.TotalMilliseconds : null,
+                    value => value.HasValue ? TimeSpan.FromMilliseconds(value.Value) : null)
+                .HasColumnName("TotalMilliseconds");
             entity.Property(e => e.TotalPrice).HasColumnType("numeric(10, 2)");
 
             entity.HasOne(d => d.Artist).WithMany(p => p.Albums)
